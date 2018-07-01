@@ -1,3 +1,41 @@
+##
+
+* fiber, 这个数据结构记录了所要做的(更新节点, update, deletion, creation) 等所有信息. 本身是一个树形的结构, 
+  父节点只连接子节点位于数组的第一个, 但是所有子节点都有父节点的引用
+
+  ```js
+  let fiber = {
+    tag: HOST_COMPONENT,  
+    type: "div",  // fiber 类型
+    parent: parentFiber, // parent fiber
+    child: childFiber, // child fiber
+    sibling: null, // slibing fiber
+    alternate: currentFiber, // 指向当前未完成工作的 fiber, 以前的同一个位置节点的 fiber, 是为了记录 onUpdate(preProps, nextProps) 的 preProps 用的
+    stateNode: document.createElement("div"), // either dom instance, or a (React)class component instance
+    props: { children: [], className: "foo"}, // props, 当前工作(mutation) 需要更新的props
+    partialState: null, // next state
+    effectTag: PLACEMENT, // delete, add or update 
+    effects: [] // other info related to effectTag, 子节点和孙子节点都会被pull 上来, 这里边只有root节点会真正用来操作dom, type of `fiber[]`
+  };
+  ```
+
+* 理解 biber 的数据结构是非常重要的, fiber 有 child, parent, 各自指向 子节点 父节点, 而 sibling 可以理解为
+  链表的下一个节点, 需要注意的是 child 和 parent 是双向的, 而 sibling 是单向的.
+
+
+
+* wipFiber 和 rootFiber or _rootContainerFiber, fiber 的工作机制是 fiber 中记录了上次所有节点的关联信息, 然后在 effects 中记录了需要做的操作.
+  当 wipFiber 中的 mutation 被操作完, wipFiber 就会变成 rootFiber or _rootContainerFiber, 然后下一次渲染的时候会生成一个新的 wipFiber, 然后
+  这个 wipFiber.alternate 会被置为上次的 wipFiber 即 (rootFiber), 然后会将新的 elements 节点和老的 fiber 做个对比. 从根节点开始向下对比
+  , 产生 creation, deletion or update 的 effectType. fiber 中也缓存了上次的 instance (React.Component) 或者 dom 实例 在 stateNode 中.
+
+
+
+
+
+
+##
+
 <p align="center"><img src="https://cloud.githubusercontent.com/assets/1911623/26426031/5176c348-40ad-11e7-9f1a-1e2f8840b562.jpeg"></p>
 
 # Didact [![Build Status](https://travis-ci.org/hexacta/didact.svg?branch=master)](https://travis-ci.org/hexacta/didact) [![npm version](https://img.shields.io/npm/v/didact.svg?style=flat)](https://www.npmjs.com/package/didact)
